@@ -10,6 +10,7 @@ describe "ExtendedDocument" do
     property :preset,       :default => {:right => 10, :top_align => false}
     property :set_by_proc,  :default => Proc.new{Time.now},       :cast_as => 'Time'
     property :tags,         :default => []
+    property :read_only_with_default, :default => 'generic', :read_only => true
     property :name
     timestamps!
   end
@@ -143,6 +144,11 @@ describe "ExtendedDocument" do
     it "should work with a default empty array" do
       obj = WithDefaultValues.new(:tags => ['spec'])
       obj.tags.should == ['spec']
+    end
+    
+    it "should set default value of read-only property" do
+      obj = WithDefaultValues.new
+      obj.read_only_with_default.should == 'generic'
     end
   end
   
