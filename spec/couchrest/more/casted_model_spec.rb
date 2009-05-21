@@ -37,6 +37,16 @@ describe CouchRest::CastedModel do
     end
   end
   
+  describe "casted as an attribute, but without a value" do
+    before(:each) do
+      @obj = DummyModel.new
+      @casted_obj = @obj.casted_attribute
+    end
+    it "should be nil" do
+      @casted_obj.should == nil
+    end
+  end
+  
   describe "casted as attribute" do
     before(:each) do
       @obj = DummyModel.new(:casted_attribute => {:name => 'whatever'})
