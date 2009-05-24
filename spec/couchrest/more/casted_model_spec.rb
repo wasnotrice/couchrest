@@ -1,9 +1,15 @@
+# encoding: utf-8
+
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 require File.join(FIXTURE_PATH, 'more', 'card')
+require File.join(FIXTURE_PATH, 'more', 'cat')
+require File.join(FIXTURE_PATH, 'more', 'person')
+
 
 class WithCastedModelMixin < Hash
   include CouchRest::CastedModel
   property :name
+  property :no_value
 end
 
 class DummyModel < CouchRest::ExtendedDocument
@@ -64,6 +70,14 @@ describe CouchRest::CastedModel do
     it "should know who casted it" do
       @casted_obj.casted_by.should == @obj
     end
+
+    it "should return nil for the 'no_value' attribute" do
+      @casted_obj.no_value.should be_nil
+    end
+
+    it "should return nil for the unknown attribute" do
+      @casted_obj["unknown"].should be_nil
+    end
   end
   
   describe "casted as an array of a different type" do
@@ -101,6 +115,36 @@ describe CouchRest::CastedModel do
       casted_obj = @obj.casted_attribute
       casted_obj.name = "test"
       casted_obj.name.should == "test"
+    end
+    
+  end
+
+  describe "saving document with array of casted models and validation" do
+    before :each do
+      @cat = Cat.new
+      @cat.save
+    end
+
+    it "should save" do
+      toy = CatToy.new :name => "Mouse"
+      @cat.toys.push(toy)
+      @cat.save.should be_true
+    end
+
+    it "should fail because name is not present" do
+      toy = CatToy.new
+      @cat.toys.push(toy)
+      @cat.should_not be_valid
+      @cat.save.should be_false
+    end
+    
+    it "should not fail if the casted model doesn't have validation" do
+      Cat.property :masters, :cast_as => ['Person'], :default => []
+      Cat.validates_present :name
+      cat = Cat.new(:name => 'kitty')
+      cat.should be_valid
+      cat.masters.push Person.new
+      cat.should be_valid
     end
     
   end
