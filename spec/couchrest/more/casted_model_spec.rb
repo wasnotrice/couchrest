@@ -10,7 +10,7 @@ class WithCastedModelMixin < Hash
   include CouchRest::CastedModel
   property :name
   property :no_value
-  property :hash,             :default => {}
+  property :details,          :default => {}
   property :casted_attribute, :cast_as => 'WithCastedModelMixin'
 end
 
@@ -42,6 +42,12 @@ describe CouchRest::CastedModel do
     it "should automatically include the property mixin and define getters and setters" do
       @obj.name = 'Matt'
       @obj.name.should == 'Matt' 
+    end
+    
+    it "should allow override of default" do
+      @obj = WithCastedModelMixin.new(:name => 'Eric', :details => {'color' => 'orange'})
+      @obj.name.should == 'Eric'
+      @obj.details['color'].should == 'orange'
     end
   end
   
@@ -83,7 +89,7 @@ describe CouchRest::CastedModel do
     end
     
     it "should return {} for the hash attribute" do
-      @casted_obj.hash.should == {}
+      @casted_obj.details.should == {}
     end
     
     it "should cast its own attributes" do
@@ -126,6 +132,14 @@ describe CouchRest::CastedModel do
       casted_obj = @obj.casted_attribute
       casted_obj.name = "test"
       casted_obj.name.should == "test"
+    end
+    
+    it "should retain an override of a casted model attribute's default" do
+      casted_obj = @obj.casted_attribute
+      casted_obj.details['color'] = 'orange'
+      @obj.save
+      casted_obj = DummyModel.get(@obj.id).casted_attribute
+      casted_obj.details['color'].should == 'orange'
     end
     
   end
