@@ -10,7 +10,8 @@ class WithCastedModelMixin < Hash
   include CouchRest::CastedModel
   property :name
   property :no_value
-  property :hash, :default => {}
+  property :hash,             :default => {}
+  property :casted_attribute, :cast_as => 'WithCastedModelMixin'
 end
 
 class DummyModel < CouchRest::ExtendedDocument
@@ -56,7 +57,8 @@ describe CouchRest::CastedModel do
   
   describe "casted as attribute" do
     before(:each) do
-      @obj = DummyModel.new(:casted_attribute => {:name => 'whatever'})
+      casted = {:name => 'not whatever'}
+      @obj = DummyModel.new(:casted_attribute => {:name => 'whatever', :casted_attribute => casted})
       @casted_obj = @obj.casted_attribute
     end
     
@@ -82,6 +84,10 @@ describe CouchRest::CastedModel do
     
     it "should return {} for the hash attribute" do
       @casted_obj.hash.should == {}
+    end
+    
+    it "should cast its own attributes" do
+      @casted_obj.casted_attribute.should be_instance_of(WithCastedModelMixin)
     end
   end
   

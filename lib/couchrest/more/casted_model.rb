@@ -15,7 +15,7 @@ module CouchRest
         self[k.to_s] = v
       end if keys
       apply_defaults # defined in CouchRest::Mixins::Properties
-      # cast_keys      # defined in CouchRest::Mixins::Properties
+      cast_keys      # defined in CouchRest::Mixins::Properties
     end
     
     def []= key, value
